@@ -1,15 +1,13 @@
 ## 1 - Set Database Connection In .env
 `DB_DATABASE=DATABASE NAME`
 
-<br>
-
 `DB_USERNAME=root`
-
-<br>
 
 `DB_PASSWORD=`
 
 ## 2 -  Run Install Commend
+
+`php artisan install:app`
 
 `composer install`
 
