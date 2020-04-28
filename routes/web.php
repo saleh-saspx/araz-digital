@@ -11,9 +11,10 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', 'HomeController@indexPage')->name('index');
+Route::get('/{slug}', 'ArticleController@show')->name('article.show');
+Route::get('/category/{slug}', 'CategoryController@show')->name('category.show');
+
 
 Auth::routes();
 

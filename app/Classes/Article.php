@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpVoidFunctionResultUsedInspection */
 
 
 namespace App\Classes;
@@ -52,10 +52,23 @@ class Article
             $header = $html->filter('.arz-post-header');
             $img = $this->getImage($header->filter('.arz-post-image')->html());
             $title = $this->getTitle($header->filter('.arz-post-title')->html());
-            $body = $html->filter('.arz-post-content')->filter('article')->html();
+            $body = $this->getBodyNormal($html->filter('.arz-post-content')->html());
             $insert = $this->newArticle(['user_id' => 1, 'title' => $title, 'slug' => str_slug($title), 'body' => $body, 'image' => $img, 'base_url' => $url]);
-            $this->getCategories($html->filter('.arz-main-categories')->html(), $insert->id);
+            if ($insert) {
+                $this->getCategories($html->filter('.arz-main-categories')->html(), $insert->id);
+            }
         }
+    }
+
+    protected function getBodyNormal($postDate)
+    {
+        $crawler = new Crawler($postDate);
+        $crawler->filter('body article .yarpp-related')->each(function (Crawler $crawler) {
+            foreach ($crawler as $node) {
+                $node->parentNode->removeChild($node);
+            }
+        });
+        return $crawler->filter('body article')->html();
     }
 
     protected function getCategories($post, $articleId)
@@ -103,10 +116,15 @@ class Article
 
     protected function newArticle($article)
     {
-        $insert = new \App\Article($article);
-        $insert->save();
-        $this->logger('added to database!');
-        return $insert;
+        $check = \App\Article::query()->where('title', $article['title'])->first();
+        if (!$check):
+            $insert = new \App\Article($article);
+            $insert->save();
+            $this->logger('added to database!');
+            return $insert;
+        else:
+            return false;
+        endif;
     }
 
 }

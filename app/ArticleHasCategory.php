@@ -12,6 +12,11 @@ class ArticleHasCategory extends Model
 
     public function Category()
     {
-        return $this->hasOne(Category::class, 'id', 'category_ids');
+        return $this->hasOne(Category::class, 'id', 'category_id');
     }
+    public function item()
+    {
+        return $this->hasOne(Article::class, 'id', 'article_id');
+    }
+
 }

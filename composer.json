@@ -13,6 +13,7 @@
         "guzzlehttp/guzzle": "^6.5",
         "laravel/framework": "5.8.*",
         "laravel/tinker": "^1.0",
+        "morilog/jalali": "3.*",
         "symfony/browser-kit": "^5.0",
         "symfony/dom-crawler": "^5.0",
         "symfony/http-client": "^5.0"
