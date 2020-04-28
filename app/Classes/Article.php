@@ -4,6 +4,7 @@
 namespace App\Classes;
 
 
+use App\ArticleHasCategory;
 use App\Cache;
 use GuzzleHttp\Client;
 use Monolog\Logger;
@@ -52,8 +53,33 @@ class Article
             $img = $this->getImage($header->filter('.arz-post-image')->html());
             $title = $this->getTitle($header->filter('.arz-post-title')->html());
             $body = $html->filter('.arz-post-content')->filter('article')->html();
-            $this->newArticle(['user_id' => 1, 'title' => $title, 'slug' => str_slug($title), 'body' => $body, 'image' => $img, 'base_url' => $url]);
+            $insert = $this->newArticle(['user_id' => 1, 'title' => $title, 'slug' => str_slug($title), 'body' => $body, 'image' => $img, 'base_url' => $url]);
+            $this->getCategories($html->filter('.arz-main-categories')->html(), $insert->id);
         }
+    }
+
+    protected function getCategories($post, $articleId)
+    {
+        $crawler = new Crawler($post);
+        foreach ($crawler->filter('body')->children() as $node) {
+            $node = new Crawler($node);
+            $node->filter('body')
+                ->filter('.arz-main-category')->filter('a > span');
+            $category_id = $this->spoilCategoryLink($node->text());
+            ArticleHasCategory::query()->insert(['article_id' => $articleId, 'category_id' => $category_id]);
+        }
+    }
+
+    protected function spoilCategoryLink($category, $baseUrl = null)
+    {
+        $c = \App\Category::query()->where('title', $category)->first();
+        if ($c == null):
+            $cate = new \App\Category(['title' => $category, 'slug' => str_slug($category), 'base_url' => $baseUrl]);
+            $cate->save();
+            return $cate->id;
+        else:
+            return $c->id;
+        endif;
     }
 
     protected function checkUrl($url)
@@ -77,8 +103,10 @@ class Article
 
     protected function newArticle($article)
     {
-        $insert = (new \App\Article($article))->save();
+        $insert = new \App\Article($article);
+        $insert->save();
         $this->logger('added to database!');
         return $insert;
     }
+
 }
