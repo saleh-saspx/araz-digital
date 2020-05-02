@@ -1,3 +1,5 @@
+`composer install`
+
 ## 1 - Set Database Connection In .env
 `DB_DATABASE=DATABASE NAME`
 
@@ -8,8 +10,6 @@
 ## 2 -  Run Install Commend
 
 `php artisan install:app`
-
-`composer install`
 
 ## 3 - Add Category To Crawler
 `php artisan get:category`
